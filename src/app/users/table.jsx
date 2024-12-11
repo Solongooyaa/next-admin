@@ -2,7 +2,14 @@
 
 import * as React from "react";
 
-import { Table, TableCell, TableHead, TableHeader, TableRow, TableBody } from "@/components/ui/table";
+import {
+  Table,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TableBody,
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -15,9 +22,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MoreHorizontal, Settings } from "lucide-react";
+import { UserEditDialog } from "./user-edit-dialog";
+import { useState } from "react";
 
 export function UsersTable(props) {
   const { data } = props;
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState();
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
@@ -29,8 +41,8 @@ export function UsersTable(props) {
             <TableRow>
               <TableHead className="w-1">#</TableHead>
               <TableHead className="w-1">Зураг</TableHead>
-              <TableHead className="w-1">Овог</TableHead>
-              <TableHead>Нэр</TableHead>
+              <TableHead className="w-1">овог</TableHead>
+              <TableHead>нэр</TableHead>
               <TableHead>И-Мэйл</TableHead>
               <TableHead className="w-1">
                 <Settings />
@@ -47,9 +59,9 @@ export function UsersTable(props) {
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
                 </TableHead>
-                <TableHead>Нармандах</TableHead>
-                <TableHead>Тэмүүлэн</TableHead>
-                <TableHead>boldoo@gmail.com</TableHead>
+                <TableHead>{item.lastname}</TableHead>
+                <TableHead>{item.firstname}</TableHead>
+                <TableHead>{item.email}</TableHead>
                 <TableHead className="w-1">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -60,10 +72,31 @@ export function UsersTable(props) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => navigator.clipboard.writeText("temkanibno@gmail.com")}>Copy Email</DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          navigator.clipboard.writeText(item.email)
+                        }
+                      >
+                        Copy Email
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          selectedItem(item);
+                          setEditDialogOpen(true);
+                        }}
+                      >
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={async (e) =>
+                          await fetch(`/api/users/${item.id}`, {
+                            method: "DELETE",
+                          })
+                        }
+                      >
+                        Delete
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableHead>
@@ -71,6 +104,11 @@ export function UsersTable(props) {
             ))}
           </TableBody>
         </Table>
+        <UserEditDialog
+          item={selectedItem}
+          open={editDialogOpen}
+          onClose={setEditDialogOpen}
+        />
       </div>
     </div>
   );

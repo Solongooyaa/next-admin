@@ -11,10 +11,12 @@ const Users = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
   const [data, setData] = useState([]);
+  const [limit, setLimit] = useState(10);
+  const [edit, setEdit] = useState();
 
   useEffect(() => {
-    fetch("/api/users")
-      .then((res) => res.json())
+    fetch("/api/users", { method: "POST" })
+      .then((res) => res.JSON())
       .then((data) => {
         setData(data);
       });
@@ -32,9 +34,11 @@ const Users = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <UsersTable data={data} />
+          <UsersTable data={data} limit={limit} />
           <div className="flex justify-center p-8">
-            <Button variant="outline">Load more...</Button>
+            <Button onClick={() => setLimit(limit + 10)} variant="outline">
+              Load more...
+            </Button>
           </div>
         </CardContent>
       </Card>
